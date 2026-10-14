@@ -6,6 +6,7 @@ from ...core.tenant_resolver import TenantResolver
 from ...models.auth import Permission
 import logging
 import hashlib
+import hmac
 from datetime import datetime, timedelta
 import jwt
 from ...config import settings
@@ -118,7 +119,19 @@ async def login(request: LoginRequest):
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid credentials"
                 )
-            
+
+            # Verify the password: previously any password was accepted for an existing email.
+            # Accounts without a stored hash (e.g. mock users) can't be verified, so fail closed.
+            password_hash = getattr(user, "password_hash", None)
+            if not password_hash or not hmac.compare_digest(
+                hashlib.sha256(password.encode()).hexdigest(), password_hash
+            ):
+                logger.warning(f"[LOGIN] Invalid password for: {email}")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid credentials"
+                )
+
             # Get user permissions
             permissions_response = (
                 supabase.service.table("user_permissions")
