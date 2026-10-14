@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     # Core settings
     database_url: str = "postgresql://postgres:postgres@db:5432/propertyflow"
     redis_url: str = "redis://redis:6379/0"
-    secret_key: str = "debug_challenge_secret"
+    secret_key: str  # required, comes from the SECRET_KEY env var (see .env.example)
     
     # Optional legacy settings
     supabase_url: Optional[str] = None
@@ -41,8 +41,7 @@ class Settings(BaseSettings):
         
         for var_name, value in critical_env_vars.items():
             if value:
-                preview = value[:15] + "..." if len(value) > 15 else value
-                logger.info(f"✅ ENV {var_name}: {preview} (len: {len(value)})")
+                logger.info(f"✅ ENV {var_name}: SET")
             else:
                 logger.info(f"❌ ENV {var_name}: NOT SET")
         
@@ -61,8 +60,7 @@ class Settings(BaseSettings):
         
         for field_name, value in loaded_values.items():
             if value:
-                preview = str(value)[:15] + "..." if len(str(value)) > 15 else str(value)
-                logger.info(f"✅ LOADED {field_name}: {preview} (len: {len(str(value))})")
+                logger.info(f"✅ LOADED {field_name}: SET")
             else:
                 logger.info(f"❌ LOADED {field_name}: NOT SET")
         
@@ -143,7 +141,6 @@ class Settings(BaseSettings):
                 return {}
 
             logger.debug(f"HOSTAWAY_TOKENS length: {len(self.hostaway_tokens)}")
-            logger.debug(f"HOSTAWAY_TOKENS preview: {self.hostaway_tokens[:100]}...")
 
             # First try to parse as JSON
             try:

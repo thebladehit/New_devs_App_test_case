@@ -13,6 +13,7 @@ import { storageRecoverySystem } from './StorageRecoverySystem';
 
 const STORAGE_VERSION_KEY = 'app_storage_version';
 const CURRENT_VERSION = '2.0.0'; // Keep at 2.0.0 to avoid forcing migration on existing users
+const AUTH_TOKEN_KEY = 'base360-auth-token'; // see lib/localAuthClient.ts
 
 interface StorageSchema {
   version: string;
@@ -236,10 +237,10 @@ class LocalStorageManager {
    */
   private clearAllExceptEssentials(): void {
     const preservedData: Record<string, string> = {};
-    
+
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && (key.includes('supabase') || key.includes('sb-'))) {
+      if (key && (key.includes('supabase') || key.includes('sb-') || key === AUTH_TOKEN_KEY)) {
         const value = localStorage.getItem(key);
         if (value) {
           preservedData[key] = value;
