@@ -1452,6 +1452,10 @@ export class SecureAPIClient {
   /**
    * Get dashboard summary with optional simulation header
    */
+  async getDashboardProperties(): Promise<{ properties: { id: string; name: string; timezone: string }[] }> {
+    return this.request<any>('/api/v1/dashboard/properties');
+  }
+
   async getDashboardSummary(propertyId: string, options?: { simulatedTenant?: string, timestamp?: number, month?: number, year?: number }) {
     const queryParams = new URLSearchParams({ property_id: propertyId });
     if (options?.month && options?.year) {

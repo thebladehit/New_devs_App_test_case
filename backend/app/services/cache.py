@@ -1,6 +1,6 @@
 import json
 import redis.asyncio as redis
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 import os
 
 # Initialize Redis client (typically configured centrally).
@@ -26,6 +26,26 @@ async def get_revenue_summary(property_id: str, tenant_id: str, month: Optional[
         result = await calculate_monthly_revenue(property_id, tenant_id, month, year)
     else:
         result = await calculate_total_revenue(property_id, tenant_id)
+    
+    # Cache the result for 5 minutes
+    await redis_client.setex(cache_key, 300, json.dumps(result))
+    
+    return result
+
+async def get_properties(tenant_id: str) -> List[Dict[str, Any]]:
+    """
+    Fetches the tenant's property list, utilizing caching to improve performance.
+    """
+    cache_key = f"properties:{tenant_id}"
+    
+    # Try to get from cache
+    cached = await redis_client.get(cache_key)
+    if cached:
+        return json.loads(cached)
+    
+    from app.services.reservations import list_properties
+    
+    result = await list_properties(tenant_id)
     
     # Cache the result for 5 minutes
     await redis_client.setex(cache_key, 300, json.dumps(result))
