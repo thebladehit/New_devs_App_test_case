@@ -10,7 +10,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/propertyflow
       - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=debug_challenge_secret
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is not set - copy .env.example to .env}
     depends_on:
       - db
       - redis

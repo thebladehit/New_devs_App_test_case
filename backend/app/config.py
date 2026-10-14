@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     # Core settings
     database_url: str = "postgresql://postgres:postgres@db:5432/propertyflow"
     redis_url: str = "redis://redis:6379/0"
-    secret_key: str = "debug_challenge_secret"
+    secret_key: str  # required, comes from the SECRET_KEY env var (see .env.example)
     
     # Optional legacy settings
     supabase_url: Optional[str] = None
