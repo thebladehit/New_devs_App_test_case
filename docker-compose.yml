@@ -7,10 +7,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/propertyflow
-      - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is not set - copy .env.example to .env}
+    env_file: .env
     depends_on:
       - db
       - redis
@@ -23,17 +20,13 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:80" # Mapping internal 80 (nginx) to 3000
-    environment:
-      - VITE_API_URL=http://localhost:8000
+    env_file: .env
     depends_on:
       - backend
 
   db:
     image: postgres:15-alpine
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=propertyflow
+    env_file: .env
     ports:
       - "5433:5432"
     volumes:
